@@ -1,7 +1,8 @@
-import {AppState} from 'src/types/v2'
+// Libraries
 import {push} from 'react-router-redux'
 import _ from 'lodash'
 
+// APIs
 import {Task as TaskAPI, Organization} from 'src/api'
 import {
   submitNewTask,
@@ -10,6 +11,8 @@ import {
   getTask,
   updateTaskStatus as updateTaskStatusAPI,
   deleteTask as deleteTaskAPI,
+  addTaskLabels as addTaskLabelsAPI,
+  removeTaskLabels as removeTaskLabelsAPI,
 } from 'src/tasks/api/v2'
 import {getMe} from 'src/shared/apis/v2/user'
 import {notify} from 'src/shared/actions/notifications'
@@ -22,8 +25,13 @@ import {
   taskImportFailed,
   taskImportSuccess,
 } from 'src/shared/copy/v2/notifications'
-import {getDeep} from 'src/utils/wrappers'
 
+// Types
+import {AppState} from 'src/types/v2'
+import {Label} from 'src/api'
+
+// Utils
+import {getDeep} from 'src/utils/wrappers'
 import {
   taskOptionsToFluxScript,
   TaskOptionKeys,
@@ -42,6 +50,8 @@ export type Action =
   | ClearTask
   | SetTaskOption
   | SetAllTaskOptions
+  | AddTaskLabels
+  | RemoveTaskLabels
 
 type GetStateFunc = () => AppState
 interface Task extends TaskAPI {
@@ -124,6 +134,22 @@ export interface SetTaskOption {
   }
 }
 
+export interface AddTaskLabels {
+  type: 'ADD_TASK_LABELS'
+  payload: {
+    taskID: string
+    labels: Label[]
+  }
+}
+
+export interface RemoveTaskLabels {
+  type: 'REMOVE_TASK_LABELS'
+  payload: {
+    taskID: string
+    labels: Label[]
+  }
+}
+
 export const setTaskOption = (taskOption: {
   key: TaskOptionKeys
   value: string
@@ -175,6 +201,30 @@ export const setDropdownOrgID = (dropdownOrgID: string): SetDropdownOrgID => ({
   type: 'SET_DROPDOWN_ORG_ID',
   payload: {dropdownOrgID},
 })
+
+export const addTaskLabels = (
+  taskID: string,
+  labels: Label[]
+): AddTaskLabels => ({
+  type: 'ADD_TASK_LABELS',
+  payload: {
+    taskID,
+    labels,
+  },
+})
+
+export const removeTaskLabels = (
+  taskID: string,
+  labels: Label[]
+): RemoveTaskLabels => ({
+  type: 'REMOVE_TASK_LABELS',
+  payload: {
+    taskID,
+    labels,
+  },
+})
+
+// Thunks
 
 export const updateTaskStatus = (task: Task) => async dispatch => {
   try {
@@ -335,5 +385,30 @@ export const importScript = (script: string, fileName: string) => async (
     console.error(error)
     const message = getDeep<string>(error, 'message', '')
     dispatch(notify(taskImportFailed(fileName, message)))
+  }
+}
+
+export const addTaskLabelsAsync = (taskID: string, labels: Label[]) => async (
+  dispatch
+): Promise<void> => {
+  try {
+    const newLabels = await addTaskLabelsAPI(taskID, labels)
+
+    dispatch(addTaskLabels(taskID, newLabels))
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export const removeTaskLabelsAsync = (
+  taskID: string,
+  labels: Label[]
+) => async (dispatch): Promise<void> => {
+  try {
+    await removeTaskLabelsAPI(taskID, labels)
+
+    dispatch(removeTaskLabels(taskID, labels))
+  } catch (error) {
+    console.error(error)
   }
 }

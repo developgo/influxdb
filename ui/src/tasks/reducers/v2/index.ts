@@ -93,6 +93,32 @@ export default (state: State = defaultState, action: Action): State => {
     case 'SET_DROPDOWN_ORG_ID':
       const {dropdownOrgID} = action.payload
       return {...state, dropdownOrgID}
+    case 'ADD_TASK_LABELS':
+      const {taskID, labels} = action.payload
+
+      const updatedTasks = state.tasks.map(t => {
+        if (t.id === taskID) {
+          return {...t, labels: [...t.labels, ...labels]}
+        }
+        return t
+      })
+
+      return {...state, tasks: [...updatedTasks]}
+    case 'REMOVE_TASK_LABELS': {
+      const {taskID, labels} = action.payload
+
+      const updatedTasks = state.tasks.map(t => {
+        if (t.id === taskID) {
+          const uptatedLabels = t.labels.filter(l => {
+            return !labels.includes(l)
+          })
+          return {...t, labels: uptatedLabels}
+        }
+        return t
+      })
+
+      return {...state, tasks: [...updatedTasks]}
+    }
     default:
       return state
   }
