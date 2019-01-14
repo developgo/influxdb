@@ -6,7 +6,7 @@ SOURCES = bin.go
 SUBDIRS =
 
 # Default target
-all: $(SUBDIRS) $(TARGETS)
+all: generate $(SUBDIRS) $(TARGETS)
 
 # Recurse into subdirs for same make goal
 $(SUBDIRS):
@@ -14,10 +14,15 @@ $(SUBDIRS):
 
 # Clean all targets recursively
 clean: $(SUBDIRS)
-	rm -f $(TARGETS)
+	$(RM) $(TARGETS)
 
 # Define go generate if not already defined
 GO_GENERATE := go generate
+# Define ui generation command if not already defined
+GO_BINDATA := go run github.com/kevinburke/go-bindata/go-bindata
+
+generate:
+	$(GO_BINDATA) -o bin_gen.go -tags assets -ignore 'README|apps|.sh|go' -pkg canned .
 
 # Run go generate for the targets
 $(TARGETS): $(SOURCES)

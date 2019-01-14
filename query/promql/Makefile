@@ -17,7 +17,7 @@ $(SUBDIRS):
 
 # Clean all targets recursively
 clean: $(SUBDIRS)
-	rm -f $(TARGETS)
+	$(RM) $(TARGETS)
 
 # Define go generate if not already defined
 GO_GENERATE := go generate

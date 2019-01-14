@@ -14,7 +14,7 @@ $(SUBDIRS):
 
 # Clean all targets recursively
 clean: $(SUBDIRS)
-	rm -f $(TARGETS)
+	$(RM) $(TARGETS)
 
 
 GO_RUN := env GO111MODULE=on go run

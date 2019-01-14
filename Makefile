@@ -26,7 +26,8 @@ export GO_GENERATE=go generate $(GO_ARGS)
 export GO_VET=env GO111MODULE=on go vet $(GO_ARGS)
 export GO_RUN=env GO111MODULE=on go run $(GO_ARGS)
 export PATH := $(PWD)/bin/$(GOOS):$(PATH)
-
+# Including UI generation commands
+export GO_BINDATA=env GO111MODULE=on go run github.com/kevinburke/go-bindata/go-bindata
 
 # All go source files
 SOURCES := $(shell find . -name '*.go' -not -name '*_test.go')
