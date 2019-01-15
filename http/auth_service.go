@@ -92,7 +92,8 @@ func (a *authResponse) toPlatform() *platform.Authorization {
 
 type permissionResponse struct {
 	platform.Permission
-	Name string `json:"name,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Organization string `json:"org,omitempty"`
 }
 
 func newPermissionsResponse(ctx context.Context, ps []platform.Permission, svc platform.LookupService) ([]permissionResponse, error) {
@@ -102,8 +103,8 @@ func newPermissionsResponse(ctx context.Context, ps []platform.Permission, svc p
 			Permission: p,
 		}
 
-		if p.ID != nil {
-			name, err := svc.Name(ctx, p.Resource, *p.ID)
+		if p.Resource.ID != nil {
+			name, err := svc.Name(ctx, p.Resource.Type, *p.Resource.ID)
 			if platform.ErrorCode(err) == platform.ENotFound {
 				continue
 			}
@@ -111,6 +112,17 @@ func newPermissionsResponse(ctx context.Context, ps []platform.Permission, svc p
 				return nil, err
 			}
 			res[i].Name = name
+		}
+
+		if p.Resource.OrgID != nil {
+			name, err := svc.Name(ctx, platform.OrgsResourceType, *p.Resource.OrgID)
+			if platform.ErrorCode(err) == platform.ENotFound {
+				continue
+			}
+			if err != nil {
+				return nil, err
+			}
+			res[i].Organization = name
 		}
 	}
 	return res, nil
