@@ -12,7 +12,11 @@ import {
   setSetupParams as setSetupParamsAJAX,
 } from 'src/onboarding/apis'
 
-export type Action = SetSetupParams | SetStepStatus | SetOrganizationID
+export type Action =
+  | SetSetupParams
+  | SetStepStatus
+  | SetOrganizationID
+  | SetBucketID
 
 interface SetSetupParams {
   type: 'SET_SETUP_PARAMS'
@@ -42,12 +46,22 @@ export const setStepStatus = (
 
 interface SetOrganizationID {
   type: 'SET_ORG_ID'
-  payload: {organizationID}
+  payload: {organizationID: string}
 }
 
-const setOrganizationID = organizationID => ({
+const setOrganizationID = (organizationID: string): SetOrganizationID => ({
   type: 'SET_ORG_ID',
   payload: {organizationID},
+})
+
+interface SetBucketID {
+  type: 'SET_BUCKET_ID'
+  payload: {bucketID: string}
+}
+
+export const setBucketID = (bucketID: string): SetBucketID => ({
+  type: 'SET_BUCKET_ID',
+  payload: {bucketID},
 })
 
 export const setupAdmin = (setupParams: SetupParams) => async dispatch => {
@@ -55,8 +69,10 @@ export const setupAdmin = (setupParams: SetupParams) => async dispatch => {
     dispatch(setSetupParams(setupParams))
     const onboardingResponse = await setSetupParamsAJAX(setupParams)
     const {id: organizationID} = onboardingResponse.org
+    const {id: bucketID} = onboardingResponse.bucket
 
     dispatch(setOrganizationID(organizationID))
+    dispatch(setBucketID(bucketID))
 
     await signinAJAX({
       username: setupParams.username,

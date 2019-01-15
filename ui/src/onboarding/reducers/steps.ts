@@ -9,12 +9,14 @@ export interface OnboardingStepsState {
   stepStatuses: StepStatus[]
   setupParams: SetupParams
   organizationID: string
+  bucketID: string
 }
 
 const INITIAL_STATE: OnboardingStepsState = {
   stepStatuses: new Array(6).fill(StepStatus.Incomplete),
   setupParams: null,
   organizationID: '',
+  bucketID: '',
 }
 
 export default (
@@ -30,6 +32,8 @@ export default (
       return {...state, stepStatuses}
     case 'SET_ORG_ID':
       return {...state, organizationID: action.payload.organizationID}
+    case 'SET_BUCKET_ID':
+      return {...state, bucketID: action.payload.bucketID}
     default:
       return state
   }
